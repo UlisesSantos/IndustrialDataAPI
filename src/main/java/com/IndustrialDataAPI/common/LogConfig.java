@@ -1,4 +1,4 @@
-package common;
+package com.IndustrialDataAPI.common;
 
 import org.apache.logging.log4j.ThreadContext;
 import java.util.UUID;
