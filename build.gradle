@@ -19,7 +19,7 @@ repositories {
 }
 
 configurations {
-    all {
+    configureEach {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
         exclude group: 'commons-logging', module: 'commons-logging'
     }
