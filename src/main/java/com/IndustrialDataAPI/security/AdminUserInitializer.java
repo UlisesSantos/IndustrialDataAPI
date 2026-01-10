@@ -5,6 +5,8 @@ import com.IndustrialDataAPI.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 @Component
 public class AdminUserInitializer implements CommandLineRunner {
 
@@ -20,8 +22,12 @@ public class AdminUserInitializer implements CommandLineRunner {
     public void run(String... args){
         if(userRepository.findUserByEmail("admin").isEmpty()){
             Users admin = new Users();
+            admin.setName("admin");
+            admin.setLastname("admin");
             admin.setEmail("admin");
             admin.setPassword(passwordEncoder.encode("admin"));
+            admin.setRole("ADMIN");
+            admin.setCreatedAt(LocalDateTime.now());
             userRepository.save(admin);
         }
     }
