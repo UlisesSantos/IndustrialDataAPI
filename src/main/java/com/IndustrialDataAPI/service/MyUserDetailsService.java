@@ -24,7 +24,6 @@ public class MyUserDetailsService implements UserDetailsService {
 
    @Override
    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException{
-       LogConfig.initLog4j2();
 
        Optional<Users> usersOptional = userRepository.findUserByEmail(email);
        if(usersOptional.isPresent()) {
