@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,9 @@ import java.util.function.Function;
 public class JWTService {
 
     private String secretKey = "";
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     public JWTService() throws NoSuchAlgorithmException{
         try {
@@ -39,7 +44,7 @@ public class JWTService {
                 .add(claims)
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 60))
+                .expiration(new Date(System.currentTimeMillis() + 60))
                 .and()
                 .signWith(getKey())
                 .compact();

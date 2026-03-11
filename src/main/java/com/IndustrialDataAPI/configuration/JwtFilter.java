@@ -2,7 +2,9 @@ package com.IndustrialDataAPI.configuration;
 
 import com.IndustrialDataAPI.service.JWTService;
 import com.IndustrialDataAPI.service.MyUserDetailsService;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,9 +42,13 @@ public class JwtFilter extends OncePerRequestFilter {
         if(authHeader != null && authHeader.startsWith("Bearer ")){
             token = authHeader.substring(7);
             try{
+
                 email = jwtService.extractEmail(token);
-            }catch (JwtException e){
-                LOGGER.error("The JWT token does not match locally");
+
+            }catch (ExpiredJwtException e){
+                LOGGER.error("The JWT token is expired= " + e);
+            }catch (Exception e){
+                LOGGER.error("The JWT token does not match locally= " + e);
             }
         }
 

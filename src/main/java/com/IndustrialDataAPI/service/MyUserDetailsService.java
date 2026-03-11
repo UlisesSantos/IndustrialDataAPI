@@ -27,7 +27,6 @@ public class MyUserDetailsService implements UserDetailsService {
 
        Optional<Users> usersOptional = userRepository.findUserByEmail(email);
        if(usersOptional.isPresent()) {
-           LOGGER.info("Login user from database");
            Users users = usersOptional.get();
            return new UserPrincipal(users);
        }else {

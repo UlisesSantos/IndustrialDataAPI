@@ -13,22 +13,22 @@ public class Users {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long user_id;
 
-    @Column(name = "email_user", nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password_user", nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "name_user", nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "lastname_user", nullable = false)
+    @Column(name = "lastname", nullable = false)
     private String lastname;
 
-    @Column(name = "role_user", nullable = false)
+    @Column(name = "role", nullable = false)
     private String role;
 
-    @Column(name = "created_at_user", nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     public Users(Long user_id, String email, String password, String name, String lastname, String role, LocalDateTime createdAt){

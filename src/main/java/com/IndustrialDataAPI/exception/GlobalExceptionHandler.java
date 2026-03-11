@@ -18,11 +18,4 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());
     }
-
-    @ExceptionHandler(JWTNotValidException.class)
-    public ResponseEntity<?> handleJWTNotValidException(JWTNotValidException e){
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(e.getMessage());
-    }
 }

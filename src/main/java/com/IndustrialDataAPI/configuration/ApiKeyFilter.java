@@ -45,6 +45,7 @@ public class ApiKeyFilter extends OncePerRequestFilter {
             return;
         }
 
+
         try{
             Authentication authentication = apiKeyService.getAuthentication(request);
             SecurityContextHolder.getContext().setAuthentication(authentication);
