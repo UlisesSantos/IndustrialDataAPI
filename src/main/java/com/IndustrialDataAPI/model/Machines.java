@@ -19,6 +19,14 @@ public class Machines {
     @Column(name = "machine_area", nullable = false)
     private String machineArea;
 
+    public Machines(){}
+
+    public Machines(String machineName, String machineIp, String machineArea) {
+        this.machineName = machineName;
+        this.machineIp = machineIp;
+        this.machineArea = machineArea;
+    }
+
     public Machines(Long machine_id, String machineName, String machineIp, String machineArea) {
         this.machine_id = machine_id;
         this.machineName = machineName;

@@ -15,21 +15,32 @@ public class ApiKeys {
     @Column(name = "api_key", nullable = false, unique = true)
     private String apiKey;
 
-    @Column(name = "service_name", nullable = false, unique = false)
+    @Column(name = "service_name", nullable = false)
     private String serviceName;
 
-    @Column(name = "created_at", nullable = false, unique = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "expires_at", nullable = false, unique = false)
+    @Column(name = "expires_at", nullable = false)
     private LocalDateTime expiresAt;
 
-    @Column(name = "is_active", nullable = false, unique = false)
+    @Column(name = "is_active", nullable = false)
     private boolean isActive;
 
     @OneToOne
     @JoinColumn(name = "machine_id")
     private Machines machines;
+
+    public ApiKeys(){}
+
+    public ApiKeys(String apiKey, String serviceName, LocalDateTime createdAt, LocalDateTime expiresAt, boolean isActive, Machines machines) {
+        this.apiKey = apiKey;
+        this.serviceName = serviceName;
+        this.createdAt = createdAt;
+        this.expiresAt = expiresAt;
+        this.isActive = isActive;
+        this.machines = machines;
+    }
 
     public ApiKeys(Long api_key_id, String apiKey, String serviceName, LocalDateTime createdAt, LocalDateTime expiresAt, boolean isActive, Machines machines) {
         this.api_key_id = api_key_id;

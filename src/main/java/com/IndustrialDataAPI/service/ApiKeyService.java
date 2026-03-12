@@ -1,46 +1,89 @@
 package com.IndustrialDataAPI.service;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.MediaType;
+import com.IndustrialDataAPI.model.ApiKeys;
+import com.IndustrialDataAPI.repository.ApiKeyRepository;
+import com.IndustrialDataAPI.security.MyPasswordEncoder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ApiKeyService {
 
-    private static final String AUTH_TOKEN_HEADER_NAME = "X-API-KEY";
-    private static final String AUTH_TOKEN = "Baeldung";
+    @Autowired
+    private MachineService machineService;
+
+    @Autowired
+    private ApiKeyRepository apiKeyRepository;
+
+    @Autowired
+    private MyPasswordEncoder myPasswordEncoder;
+
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     public String generateApiKey(){
-        SecureRandom secureRandom = new SecureRandom();
-        byte[] keyBytes = new byte[32];
-        secureRandom.nextBytes(keyBytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(keyBytes);
+        byte[] apiKeyBytes = new byte[32];
+        SECURE_RANDOM.nextBytes(apiKeyBytes);
+        String prefix = generatePrefix();
+        return "ap_" + prefix + Base64.getUrlEncoder().withoutPadding().encodeToString(apiKeyBytes);
     }
 
-    public Authentication getAuthentication(HttpServletRequest request){
-        String apiKey = request.getHeader(AUTH_TOKEN_HEADER_NAME);
+    private String generatePrefix(){
+        byte[] prefixBytes = new byte[4];
+        SECURE_RANDOM.nextBytes(prefixBytes);
+        String prefix = Base64.getUrlEncoder().withoutPadding().encodeToString(prefixBytes);
+        Optional<ApiKeys> apiKeysOptional = apiKeyRepository.findByApiKeyStartingWith(prefix);
+        return (apiKeysOptional.isPresent()) ? generatePrefix() : prefix;
+    }
 
-        if (apiKey == null || !apiKey.equals(AUTH_TOKEN)) {
+    public void saveApiKey(String serviceName, Long machineId, String apiKey){
+        ApiKeys apiKeys = new ApiKeys(apiKey.substring(0,9) + myPasswordEncoder.encode(apiKey.substring(9)),
+                serviceName,
+                LocalDateTime.now(),
+                LocalDateTime.now().plusMonths(12),
+                true,
+                machineService.getMachineById(machineId));
+
+        apiKeyRepository.save(apiKeys);
+    }
+
+    public boolean isApiKeyExpired(LocalDateTime expiresAt){
+        return LocalDateTime.now().isAfter(expiresAt);
+    }
+
+    public Authentication getAuthentication(String apiKeyRequest){
+
+        if(apiKeyRequest == null  || apiKeyRequest.length() < 10){
             throw new BadCredentialsException("Invalid API Key");
         }
 
-        Authentication authentication =
-                new UsernamePasswordAuthenticationToken(
-                        "api-client",
-                        null,
-                        List.of(new SimpleGrantedAuthority("ROLE_API"))
-                );
+        String prefix = apiKeyRequest.substring(0,9);
+        Optional<ApiKeys> apiKeyOptional = apiKeyRepository.findByApiKeyStartingWith(prefix);
 
-        return new ApiKeyAuthentication(apiKey, AuthorityUtils.NO_AUTHORITIES);
+        ApiKeys apiKey = apiKeyOptional.orElseThrow(
+                () -> new BadCredentialsException("Invalid API Key")
+        );
+
+        if(!myPasswordEncoder.matches(apiKeyRequest.substring(9), apiKey.getApiKey().substring(9))){
+            throw new BadCredentialsException("Invalid API Key");
+        }
+
+        if(!apiKey.isActive()){
+            throw new BadCredentialsException("API Key is not active");
+        }
+
+        if(isApiKeyExpired(apiKey.getExpiresAt())){
+            throw new CredentialsExpiredException("API Key expired");
+        }
+
+        return new ApiKeyAuthentication(apiKey.getApiKey(), AuthorityUtils.NO_AUTHORITIES);
     }
 }
