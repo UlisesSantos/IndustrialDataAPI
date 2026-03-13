@@ -36,13 +36,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         return httpSecurity
-                // TODO: Activate the csrf
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/industrial/users").hasAuthority("ADMIN")
-                        .requestMatchers("/industrial/login").permitAll()
+                        .requestMatchers("/industrial/users/**").hasAuthority("ADMIN")
+                        .requestMatchers("/industrial/auth/login").permitAll()
                         .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(apiKeyFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(jwtFilter, apiKeyFilter.getClass())
                 .build();

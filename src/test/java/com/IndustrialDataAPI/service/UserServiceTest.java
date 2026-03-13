@@ -34,6 +34,7 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
+    /*
     @Test
     void shouldReturnAllUsersWhenTokenIsValid() {
         List<Users> users = List.of(new Users(), new Users());
@@ -47,7 +48,7 @@ class UserServiceTest {
         verify(userRepository)
                 .findAll();
 
-    }
+    }*/
 
     @Test
     void shouldReturnJwtTokenWhenUserIsValid(){

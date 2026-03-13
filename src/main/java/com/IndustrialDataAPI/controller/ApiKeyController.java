@@ -1,6 +1,6 @@
 package com.IndustrialDataAPI.controller;
 
-import com.IndustrialDataAPI.model.ApiKeyRequest;
+import com.IndustrialDataAPI.dto.ApiKeysRequest;
 import com.IndustrialDataAPI.service.ApiKeyService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,7 +22,7 @@ public class ApiKeyController {
     private ApiKeyService apiKeyService;
 
     @PostMapping("/api-key")
-    public ResponseEntity<String> createApiKey(@RequestBody ApiKeyRequest request, Authentication authentication){
+    public ResponseEntity<String> createApiKey(@RequestBody ApiKeysRequest request, Authentication authentication){
         LOGGER.info("Creating a new Api Key for Machine {} by {}",request.getMachine_id(), authentication.getName());
         String apiKey = apiKeyService.generateApiKey();
         apiKeyService.saveApiKey(request.getService_name(), request.getMachine_id(), apiKey);

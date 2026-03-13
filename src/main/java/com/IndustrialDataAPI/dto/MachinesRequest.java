@@ -1,8 +1,8 @@
-package com.IndustrialDataAPI.model;
+package com.IndustrialDataAPI.dto;
 
 import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBlank;
 
-public class MachineRequest {
+public class MachinesRequest {
 
     @NotBlank
     private String machine_name;
@@ -13,7 +13,7 @@ public class MachineRequest {
     @NotBlank
     private String area;
 
-    public MachineRequest(String machine_name, String ip, String area) {
+    public MachinesRequest(String machine_name, String ip, String area) {
         this.machine_name = machine_name;
         this.ip = ip;
         this.area = area;

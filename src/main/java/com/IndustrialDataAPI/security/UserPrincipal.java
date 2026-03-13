@@ -1,5 +1,6 @@
-package com.IndustrialDataAPI.model;
+package com.IndustrialDataAPI.security;
 
+import com.IndustrialDataAPI.model.Users;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +18,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities(){
-        return Collections.singleton(new SimpleGrantedAuthority(users.getRole()));
+        return Collections.singleton(new SimpleGrantedAuthority(users.getRoles().getRole()));
     }
 
     public Long getId(){

@@ -1,7 +1,7 @@
 package com.IndustrialDataAPI.controller;
 
 import com.IndustrialDataAPI.exception.DuplicatedEntryException;
-import com.IndustrialDataAPI.model.MachineRequest;
+import com.IndustrialDataAPI.dto.MachinesRequest;
 import com.IndustrialDataAPI.model.Machines;
 import com.IndustrialDataAPI.service.MachineService;
 import org.apache.logging.log4j.LogManager;
@@ -22,7 +22,7 @@ public class MachineController {
     private MachineService machineService;
 
     @PostMapping("/machine")
-    public ResponseEntity<Machines> createMachine(@RequestBody MachineRequest request, Authentication authentication){
+    public ResponseEntity<Machines> createMachine(@RequestBody MachinesRequest request, Authentication authentication){
         String email = authentication.getName();
         Machines machine;
         LOGGER.info("Attempt to register Machine by: {}", email);

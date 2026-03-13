@@ -1,16 +1,20 @@
 package com.IndustrialDataAPI.security;
 
+import com.IndustrialDataAPI.model.Roles;
 import com.IndustrialDataAPI.model.Users;
 import com.IndustrialDataAPI.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
 @Component
+@Order(2)
 public class AdminUserInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
+
     private final MyPasswordEncoder passwordEncoder;
 
     public AdminUserInitializer(UserRepository userRepository, MyPasswordEncoder passwordEncoder){
@@ -26,8 +30,8 @@ public class AdminUserInitializer implements CommandLineRunner {
             admin.setLastname("admin");
             admin.setEmail("admin");
             admin.setPassword(passwordEncoder.encode("admin"));
-            admin.setRole("ADMIN");
             admin.setCreatedAt(LocalDateTime.now());
+            admin.setRoles(new Roles(1L));
             userRepository.save(admin);
         }
     }

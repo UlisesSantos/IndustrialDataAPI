@@ -1,7 +1,6 @@
 package com.IndustrialDataAPI.service;
 
-import com.IndustrialDataAPI.common.LogConfig;
-import com.IndustrialDataAPI.model.UserPrincipal;
+import com.IndustrialDataAPI.security.UserPrincipal;
 import com.IndustrialDataAPI.model.Users;
 import com.IndustrialDataAPI.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;

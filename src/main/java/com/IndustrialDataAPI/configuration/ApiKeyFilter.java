@@ -27,7 +27,7 @@ public class ApiKeyFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestUrl = request.getRequestURL().toString();
 
-        if (requestUrl.contains("industrial/login/") || requestUrl.contains("industrial/users") || requestUrl.contains("industrial/api-key") || requestUrl.contains("industrial/machine")) {
+        if (requestUrl.contains("industrial/users") || requestUrl.contains("industrial/auth")){
             filterChain.doFilter(request, response);
             return;
         }

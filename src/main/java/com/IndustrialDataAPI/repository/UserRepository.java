@@ -12,4 +12,8 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
     @Transactional(readOnly = true)
     Optional<Users> findUserByEmail(String email);
+
+    boolean existsByEmail(String email);
+
+    void deleteByEmail(String email);
 }

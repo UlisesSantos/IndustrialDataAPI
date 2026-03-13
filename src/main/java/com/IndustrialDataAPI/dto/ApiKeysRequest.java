@@ -1,8 +1,8 @@
-package com.IndustrialDataAPI.model;
+package com.IndustrialDataAPI.dto;
 
 import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBlank;
 
-public class ApiKeyRequest {
+public class ApiKeysRequest {
 
     @NotBlank
     private String service_name;

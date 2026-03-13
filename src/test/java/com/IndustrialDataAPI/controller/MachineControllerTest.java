@@ -1,6 +1,6 @@
 package com.IndustrialDataAPI.controller;
 
-import com.IndustrialDataAPI.model.MachineRequest;
+import com.IndustrialDataAPI.dto.MachinesRequest;
 import com.IndustrialDataAPI.model.Machines;
 import com.IndustrialDataAPI.service.ApiKeyService;
 import com.IndustrialDataAPI.service.JWTService;
@@ -42,19 +42,19 @@ public class MachineControllerTest {
 
     @Test
     void ShouldSaveOneMachine() throws Exception {
-        MachineRequest machineRequest =
-                new MachineRequest("machineName", "192.000.000", "area");
+        MachinesRequest machinesRequest =
+                new MachinesRequest("machineName", "192.000.000", "area");
         Machines machine =
                 new Machines(1L, "machineName", "192.000.000", "area");
 
         when(machineService.saveMachine(
-                machineRequest.getMachine_name(),
-                machineRequest.getIp(),
-                machineRequest.getArea()))
+                machinesRequest.getMachine_name(),
+                machinesRequest.getIp(),
+                machinesRequest.getArea()))
                 .thenReturn(machine);
 
         mockMvc.perform(post("/industrial/createMachine")
-                        .content(objectMapper.writeValueAsString(machineRequest))
+                        .content(objectMapper.writeValueAsString(machinesRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.machine_id").value(1))

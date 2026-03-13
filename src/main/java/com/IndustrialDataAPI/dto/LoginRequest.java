@@ -1,4 +1,4 @@
-package com.IndustrialDataAPI.model;
+package com.IndustrialDataAPI.dto;
 
 import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBlank;
 

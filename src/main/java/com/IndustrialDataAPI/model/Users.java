@@ -25,23 +25,33 @@ public class Users {
     @Column(name = "lastname", nullable = false)
     private String lastname;
 
-    @Column(name = "role", nullable = false)
-    private String role;
-
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    public Users(Long user_id, String email, String password, String name, String lastname, String role, LocalDateTime createdAt){
-        this.user_id = user_id;
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Roles roles;
+
+    public Users(){}
+
+    public Users(Long id, String email, String password, String name, String lastname, Roles roles, LocalDateTime createdAt){
+        this.user_id = id;
         this.email = email;
         this.password = password;
         this.name = name;
         this.lastname = lastname;
-        this.role = role;
+        this.roles = roles;
         this.createdAt = createdAt;
     }
 
-    public Users(){}
+    public Users(String email, String password, String name, String lastname, LocalDateTime createdAt, Roles roles) {
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.lastname = lastname;
+        this.createdAt = createdAt;
+        this.roles = roles;
+    }
 
     public String getEmail() {
         return email;
@@ -83,19 +93,19 @@ public class Users {
         this.user_id = user_id;
     }
 
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Roles getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Roles roles) {
+        this.roles = roles;
     }
 }
