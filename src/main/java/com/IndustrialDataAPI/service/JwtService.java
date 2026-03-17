@@ -1,5 +1,6 @@
 package com.IndustrialDataAPI.service;
 
+import com.IndustrialDataAPI.common.App;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -9,31 +10,22 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 @Service
-public class JWTService {
+public class JwtService {
 
-    private String secretKey = "";
+    private final String secretKey;
 
     @Autowired
     private ApplicationContext applicationContext;
 
-    public JWTService() throws NoSuchAlgorithmException{
-        try {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey sk = keyGenerator.generateKey();
-            secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
-        } catch (NoSuchAlgorithmException e){
-            throw new RuntimeException(e);
-        }
+    public JwtService(){
+        secretKey = App.SECRET_KEY;
     }
 
     public String generateToken(String email){
@@ -42,9 +34,25 @@ public class JWTService {
         return Jwts.builder()
                 .claims()
                 .add(claims)
+                .id("access")
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 60))
+                .expiration(new Date(System.currentTimeMillis() + 15 * 60 * 1000))
+                .and()
+                .signWith(getKey())
+                .compact();
+    }
+
+    public String generateRefreshToken(String email){
+        Map<String, Object> claims = new HashMap<>();
+
+        return Jwts.builder()
+                .claims()
+                .add(claims)
+                .id("refresh")
+                .subject(email)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + 14 * 24 * 60 * 60 * 1000))
                 .and()
                 .signWith(getKey())
                 .compact();
@@ -60,7 +68,7 @@ public class JWTService {
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver){
-        final Claims claims = extractAllClaims(token);
+        Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
@@ -73,8 +81,14 @@ public class JWTService {
     }
 
     public boolean validateToken(String token, UserDetails userDetails){
+        if(!extractClaim(token, Claims::getId).equals("access")) return false;
         final String email = extractEmail(token);
         return (email.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    public boolean validateRefreshToken(String refreshToken){
+        if(isTokenExpired(refreshToken)) return false;
+        return extractClaim(refreshToken, Claims::getId).equals("refresh");
     }
 
     private boolean isTokenExpired(String token){

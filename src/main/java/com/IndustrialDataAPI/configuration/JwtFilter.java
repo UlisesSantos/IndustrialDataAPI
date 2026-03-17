@@ -1,10 +1,10 @@
 package com.IndustrialDataAPI.configuration;
 
-import com.IndustrialDataAPI.service.JWTService;
+import com.IndustrialDataAPI.service.JwtService;
 import com.IndustrialDataAPI.service.MyUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,27 +28,29 @@ public class JwtFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LogManager.getLogger(JwtFilter.class);
 
     @Autowired
-    private JWTService jwtService;
+    private JwtService jwtService;
 
     @Autowired
     private ApplicationContext applicationContext;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest servletRequest, HttpServletResponse servletResponse, FilterChain filterChain) throws ServletException, IOException{
-        String authHeader = servletRequest.getHeader("Authorization");
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
+        String authHeader = request.getHeader("Authorization");
         String token = null;
         String email = null;
 
         if(authHeader != null && authHeader.startsWith("Bearer ")){
             token = authHeader.substring(7);
+
             try{
 
                 email = jwtService.extractEmail(token);
 
-            }catch (ExpiredJwtException e){
-                LOGGER.error("The JWT token is expired= " + e);
-            }catch (Exception e){
-                LOGGER.error("The JWT token does not match locally= " + e);
+            }catch (ExpiredJwtException | SignatureException | MalformedJwtException e){
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("Token not valid");
+                return;
             }
         }
 
@@ -58,11 +60,11 @@ public class JwtFilter extends OncePerRequestFilter {
             if(jwtService.validateToken(token, userDetails)){
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(servletRequest));
+                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
         }
-        filterChain.doFilter(servletRequest, servletResponse);
+        filterChain.doFilter(request, response);
     }
 
 }

@@ -1,14 +1,17 @@
 package com.IndustrialDataAPI.service;
 
+import com.IndustrialDataAPI.dto.JwtResponse;
 import com.IndustrialDataAPI.dto.RolesResponse;
 import com.IndustrialDataAPI.dto.UsersResponse;
 import com.IndustrialDataAPI.exception.NullOrEmptyParametersException;
-import com.IndustrialDataAPI.exception.RoleNotFoundException;
+import com.IndustrialDataAPI.exception.RefreshTokenNotValidException;
 import com.IndustrialDataAPI.exception.UserNotFoundException;
 import com.IndustrialDataAPI.model.Roles;
 import com.IndustrialDataAPI.model.Users;
 import com.IndustrialDataAPI.repository.UserRepository;
 import com.IndustrialDataAPI.security.MyPasswordEncoder;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.security.SignatureException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +37,7 @@ public class UserService {
     private RoleService roleService;
 
     @Autowired
-    private JWTService jwtService;
+    private JwtService jwtService;
 
     @Autowired
     private MyPasswordEncoder myPasswordEncoder;
@@ -42,6 +46,10 @@ public class UserService {
         return userRepository.findAll().stream()
                 .map(users -> new UsersResponse(users.getEmail(),users.getName(), users.getLastname(), users.getRoles().getRole(), users.getCreatedAt()))
                 .toList();
+    }
+
+    public boolean existsUserByEmail(String email){
+        return userRepository.existsByEmail(email);
     }
 
     public UsersResponse findUserById(Long id){
@@ -181,14 +189,22 @@ public class UserService {
 
     //Authentication
 
-    public String authenticateUser(String email, String password){
-        Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(email, password));
-
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
-        return jwtService.generateToken(userDetails.getUsername());
+    public JwtResponse authenticateUser(String email, String password){
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        return new JwtResponse(jwtService.generateToken(email), jwtService.generateRefreshToken(email));
     }
 
+    public JwtResponse refreshToken(String refreshToken){
+        String email;
+        try{
+             email = jwtService.extractEmail(refreshToken);
 
+        }catch (MalformedJwtException | ExpiredJwtException e){
+            throw new RefreshTokenNotValidException();
+        }
+
+        if (!userRepository.existsByEmail(email)) throw new RefreshTokenNotValidException();
+        if(!jwtService.validateRefreshToken(refreshToken)) throw new RefreshTokenNotValidException();
+        return new JwtResponse(jwtService.generateToken(email), refreshToken);
+    }
 }

@@ -142,10 +142,18 @@ public class UserController {
     // Authentication
 
     @PostMapping("auth/login")
-    public ResponseEntity<String> loginUser (@Validated @RequestBody LoginRequest request){
+    public ResponseEntity<JwtResponse> loginUser (@Validated @RequestBody LoginRequest request){
         LOGGER.info("Login attempt by User: {}", request.getEmail());
-        String jwtToken = userService.authenticateUser(request.getEmail(), request.getPassword());
-        LOGGER.info("Login successful by User: {}", request.getEmail());
-        return ResponseEntity.ok(jwtToken);
+        JwtResponse jwtResponse = userService.authenticateUser(request.getEmail(), request.getPassword());
+        LOGGER.info("Login successful by User: {} JWT: {} RefreshToken: {}", request.getEmail(), jwtResponse.getAccessToken(), jwtResponse.getRefreshToken());
+        return ResponseEntity.ok(jwtResponse);
+    }
+
+    @PostMapping("auth/refresh")
+    public ResponseEntity<JwtResponse> refreshToken(@Validated @RequestBody RefreshTokenRequest request){
+        LOGGER.info("Refreshing token: {}", request.getRefreshToken());
+        JwtResponse jwtResponse = userService.refreshToken(request.getRefreshToken());
+        LOGGER.info("New JWT created: {}", jwtResponse.getAccessToken());
+        return ResponseEntity.ok(jwtResponse);
     }
 }

@@ -3,7 +3,7 @@ package com.IndustrialDataAPI.controller;
 import com.IndustrialDataAPI.dto.MachinesRequest;
 import com.IndustrialDataAPI.model.Machines;
 import com.IndustrialDataAPI.service.ApiKeyService;
-import com.IndustrialDataAPI.service.JWTService;
+import com.IndustrialDataAPI.service.JwtService;
 import com.IndustrialDataAPI.service.MachineService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ public class MachineControllerTest {
     private ApiKeyService apiKeyService;
 
     @MockitoBean
-    private JWTService jwtService;
+    private JwtService jwtService;
 
     @MockitoBean
     private MachineService machineService;
